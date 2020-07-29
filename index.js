@@ -28,7 +28,7 @@ module.exports = function invoice(template, templateVariables, options) {
 
         // Run the template through mustache with variables
         renderedData = Mustache.render(templateString, templateVariables)
-        return puppeteer.launch()
+        return puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
       })
       .then((browser) => {
         globalBrowser = browser

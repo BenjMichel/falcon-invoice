@@ -1,6 +1,6 @@
 {
   "name": "falcon-invoice",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate PDF invoices using html templates and mustaches!",
   "main": "index.js",
   "repository": {
