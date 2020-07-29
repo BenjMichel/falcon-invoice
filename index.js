@@ -1,6 +1,6 @@
 const fs = require('fs')
 const Mustache = require('mustache')
-const pdf = require('html-pdf')
+const puppeteer = require('puppeteer')
 
 const readFile = require('./helpers')
 
@@ -16,6 +16,9 @@ module.exports = function invoice(template, templateVariables, options) {
   }
   // Combine the two objects, overriding defaults with specified options
   let settings = Object.assign({}, defaults, options)
+  let renderedData = ''
+  let globalBrowser = null
+  let globalPage = null
   // First, load the template file!
   return new Promise((resolve, reject) => {
     readFile(template)
@@ -24,18 +27,21 @@ module.exports = function invoice(template, templateVariables, options) {
         let templateString = fileBuffer.toString()
 
         // Run the template through mustache with variables
-        let renderedData = Mustache.render(templateString, templateVariables)
-
-        // Use the final rendered data to create a pdf
-        pdf.create(renderedData, settings.pdfOptions)
-          .toFile(settings.filename, (pdfError, result) => {
-            if (pdfError) {
-              console.log(`Error creating PDF: ${pdfError}`)
-              reject(pdfError)
-            }
-            console.log(`PDF Created: ${result.filename}`)
-            resolve(result.filename)
-          })
+        renderedData = Mustache.render(templateString, templateVariables)
+        return puppeteer.launch()
+      })
+      .then((browser) => {
+        globalBrowser = browser
+        return browser.newPage();
+      })
+      .then((page) => {
+        globalPage = page
+        return page.setContent(renderedData, { waitUntil: 'networkidle2' })
+      })
+      .then(() => globalPage.pdf({path: settings.filename, format: 'A4'}))
+      .then(() => {
+        globalBrowser.close()
+        resolve(settings.filename)
       })
       .catch(fileError => {
         console.log(`Error reading file: ${fileError}`)

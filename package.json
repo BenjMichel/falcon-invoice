@@ -17,8 +17,8 @@
   "author": "Andrew Hinett <andrewhinett@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "html-pdf": "^2.1.0",
-    "mustache": "^2.2.1"
+    "mustache": "^2.2.1",
+    "puppeteer": "^5.2.1"
   },
   "devDependencies": {}
 }
